@@ -8,12 +8,12 @@
 		}
 	],
 	"settings": {
-		"eslint.trace.server": {
+		"ec0lint.trace.server": {
 			"verbosity": "messages",
 			"format": "text"
 		},
 		"files.autoSave": "off",
-		"eslint.alwaysShowStatus": true,
+		"ec0lint.alwaysShowStatus": true,
 		"typescript.surveys.enabled": false
 	}
 }

@@ -11,7 +11,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as Is from './is';
 
 /**
- * Special functions to deal with path conversions in the context of ESLint
+ * Special functions to deal with path conversions in the context of Ec0lint
  */
 
 /**
@@ -79,7 +79,7 @@ export function isUNC(path: string): boolean {
 export function getFileSystemPath(uri: URI): string {
 	let result = uri.fsPath;
 	if (process.platform === 'win32' && result.length >= 2 && result[1] === ':') {
-		// Node by default uses an upper case drive letter and ESLint uses
+		// Node by default uses an upper case drive letter and Ec0lint uses
 		// === to compare paths which results in the equal check failing
 		// if the drive letter is lower case in th URI. Ensure upper case.
 		result = result[0].toUpperCase() + result.substr(1);

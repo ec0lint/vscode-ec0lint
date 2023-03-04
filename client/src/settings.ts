@@ -68,7 +68,7 @@ type MigrationData<T> = {
 
 interface CodeActionsOnSaveMap {
 	'source.fixAll'?: boolean;
-	'source.fixAll.eslint'?: boolean;
+	'source.fixAll.ec0lint'?: boolean;
 	[key: string]: boolean | undefined;
 }
 
@@ -79,7 +79,7 @@ namespace CodeActionsOnSave {
 		if (setting === undefined || setting === null || Array.isArray(setting)) {
 			return false;
 		}
-		return setting['source.fixAll.eslint'] === false;
+		return setting['source.fixAll.ec0lint'] === false;
 	}
 
 	export function getSourceFixAll(setting: CodeActionsOnSave): boolean | undefined {
@@ -92,25 +92,25 @@ namespace CodeActionsOnSave {
 		}
 	}
 
-	export function getSourceFixAllESLint(setting: CodeActionsOnSave): boolean | undefined {
+	export function getSourceFixAllEc0lint(setting: CodeActionsOnSave): boolean | undefined {
 		if (setting === null) {
 			return undefined;
 		} else if (Array.isArray(setting)) {
-			return setting.includes('source.fixAll.eslint') ? true : undefined;
+			return setting.includes('source.fixAll.ec0lint') ? true : undefined;
 		} else {
-			return setting['source.fixAll.eslint'];
+			return setting['source.fixAll.ec0lint'];
 		}
 	}
 
-	export function setSourceFixAllESLint(setting: CodeActionsOnSave, value: boolean | undefined): void {
+	export function setSourceFixAllEc0lint(setting: CodeActionsOnSave, value: boolean | undefined): void {
 		// If the setting is mistyped do nothing.
 		if (setting === null) {
 			return;
 		} else  if (Array.isArray(setting)) {
-			const index = setting.indexOf('source.fixAll.eslint');
+			const index = setting.indexOf('source.fixAll.ec0lint');
 			if (value === true) {
 				if (index === -1) {
-					setting.push('source.fixAll.eslint');
+					setting.push('source.fixAll.ec0lint');
 				}
 			} else {
 				if (index >= 0) {
@@ -118,7 +118,7 @@ namespace CodeActionsOnSave {
 				}
 			}
 		} else {
-			setting['source.fixAll.eslint'] = value;
+			setting['source.fixAll.ec0lint'] = value;
 		}
 	}
 }
@@ -148,7 +148,7 @@ namespace MigrationData {
 
 export class Migration {
 	private workspaceConfig: WorkspaceConfiguration;
-	private eslintConfig: WorkspaceConfiguration;
+	private ec0lintConfig: WorkspaceConfiguration;
 	private editorConfig: WorkspaceConfiguration;
 
 	private codeActionOnSave: MigrationData<CodeActionsOnSave>;
@@ -163,12 +163,12 @@ export class Migration {
 
 	constructor(resource: Uri) {
 		this.workspaceConfig = Workspace.getConfiguration(undefined, resource);
-		this.eslintConfig = Workspace.getConfiguration('eslint', resource);
+		this.ec0lintConfig = Workspace.getConfiguration('ec0lint', resource);
 		this.editorConfig = Workspace.getConfiguration('editor', resource);
 		this.codeActionOnSave = MigrationData.create(this.editorConfig.inspect<CodeActionsOnSave>('codeActionsOnSave'));
-		this.autoFixOnSave = MigrationData.create(this.eslintConfig.inspect<boolean>('autoFixOnSave'));
-		this.validate = MigrationData.create(this.eslintConfig.inspect<(ValidateItem | string)[]>('validate'));
-		this.workingDirectories = MigrationData.create(this.eslintConfig.inspect<(string | DirectoryItem)[]>('workingDirectories'));
+		this.autoFixOnSave = MigrationData.create(this.ec0lintConfig.inspect<boolean>('autoFixOnSave'));
+		this.validate = MigrationData.create(this.ec0lintConfig.inspect<(ValidateItem | string)[]>('validate'));
+		this.workingDirectories = MigrationData.create(this.ec0lintConfig.inspect<(string | DirectoryItem)[]>('workingDirectories'));
 		this.languageSpecificSettings = new Map();
 	}
 
@@ -194,10 +194,10 @@ export class Migration {
 			const autoFix: boolean = !!elem.value;
 			const sourceFixAll: boolean = !!CodeActionsOnSave.getSourceFixAll(setting.value);
 			let result: boolean;
-			if (autoFix !== sourceFixAll && autoFix && CodeActionsOnSave.getSourceFixAllESLint(setting.value) === undefined) {
-				CodeActionsOnSave.setSourceFixAllESLint(setting.value, elem.value);
+			if (autoFix !== sourceFixAll && autoFix && CodeActionsOnSave.getSourceFixAllEc0lint(setting.value) === undefined) {
+				CodeActionsOnSave.setSourceFixAllEc0lint(setting.value, elem.value);
 				setting.changed = true;
-				result = !!CodeActionsOnSave.getSourceFixAllESLint(setting.value);
+				result = !!CodeActionsOnSave.getSourceFixAllEc0lint(setting.value);
 			} else {
 				result = !!CodeActionsOnSave.getSourceFixAll(setting.value);
 			}
@@ -230,8 +230,8 @@ export class Migration {
 					if (!Is.objectLiteral(setting.value) && !Array.isArray(setting.value)) {
 						setting.value = Object.create(null) as {};
 					}
-					if (CodeActionsOnSave.getSourceFixAllESLint(setting.value!) !== false) {
-						CodeActionsOnSave.setSourceFixAllESLint(setting.value!, false);
+					if (CodeActionsOnSave.getSourceFixAllEc0lint(setting.value!) !== false) {
+						CodeActionsOnSave.setSourceFixAllEc0lint(setting.value!, false);
 						setting.changed = true;
 					}
 				}
@@ -282,19 +282,6 @@ export class Migration {
 				if (DirectoryItem.is(item) && item['!cwd'] !== undefined) {
 					continue;
 				}
-				/* For now we don't rewrite the settings to allow users to go back to an older version
-				if (LegacyDirectoryItem.is(item)) {
-					const legacy: LegacyDirectoryItem = item;
-					if (legacy.changeProcessCWD === false) {
-						(item as DirectoryItem)['!cwd'] = true;
-						elem.changed = true;
-					}
-				}
-				if (DirectoryItem.is(item) && item['!cwd'] === undefined) {
-					elem.value[i] = item.directory;
-					elem.changed = true;
-				}
-				*/
 			}
 		}
 
@@ -347,17 +334,17 @@ export class Migration {
 			await _update(this.editorConfig, 'codeActionsOnSave', this.codeActionOnSave.workspace, ConfigurationTarget.Workspace);
 			await _update(this.editorConfig, 'codeActionsOnSave', this.codeActionOnSave.workspaceFolder, ConfigurationTarget.WorkspaceFolder);
 
-			await _update(this.eslintConfig, 'autoFixOnSave', this.autoFixOnSave.global, ConfigurationTarget.Global);
-			await _update(this.eslintConfig, 'autoFixOnSave', this.autoFixOnSave.workspace, ConfigurationTarget.Workspace);
-			await _update(this.eslintConfig, 'autoFixOnSave', this.autoFixOnSave.workspaceFolder, ConfigurationTarget.WorkspaceFolder);
+			await _update(this.ec0lintConfig, 'autoFixOnSave', this.autoFixOnSave.global, ConfigurationTarget.Global);
+			await _update(this.ec0lintConfig, 'autoFixOnSave', this.autoFixOnSave.workspace, ConfigurationTarget.Workspace);
+			await _update(this.ec0lintConfig, 'autoFixOnSave', this.autoFixOnSave.workspaceFolder, ConfigurationTarget.WorkspaceFolder);
 
-			await _update(this.eslintConfig, 'validate', this.validate.global, ConfigurationTarget.Global);
-			await _update(this.eslintConfig, 'validate', this.validate.workspace, ConfigurationTarget.Workspace);
-			await _update(this.eslintConfig, 'validate', this.validate.workspaceFolder, ConfigurationTarget.WorkspaceFolder);
+			await _update(this.ec0lintConfig, 'validate', this.validate.global, ConfigurationTarget.Global);
+			await _update(this.ec0lintConfig, 'validate', this.validate.workspace, ConfigurationTarget.Workspace);
+			await _update(this.ec0lintConfig, 'validate', this.validate.workspaceFolder, ConfigurationTarget.WorkspaceFolder);
 
-			await _update(this.eslintConfig, 'workingDirectories', this.workingDirectories.global, ConfigurationTarget.Global);
-			await _update(this.eslintConfig, 'workingDirectories', this.workingDirectories.workspace, ConfigurationTarget.Workspace);
-			await _update(this.eslintConfig, 'workingDirectories', this.workingDirectories.workspaceFolder, ConfigurationTarget.WorkspaceFolder);
+			await _update(this.ec0lintConfig, 'workingDirectories', this.workingDirectories.global, ConfigurationTarget.Global);
+			await _update(this.ec0lintConfig, 'workingDirectories', this.workingDirectories.workspace, ConfigurationTarget.Workspace);
+			await _update(this.ec0lintConfig, 'workingDirectories', this.workingDirectories.workspaceFolder, ConfigurationTarget.WorkspaceFolder);
 
 			for (const language of this.languageSpecificSettings.keys()) {
 				const value = this.languageSpecificSettings.get(language)!;

@@ -69,32 +69,32 @@ export type CodeActionsOnSaveSettings = {
 	rules?: string[]
 };
 
-export enum ESLintSeverity {
+export enum Ec0lintSeverity {
 	off = 'off',
 	warn = 'warn',
 	error = 'error'
 }
 
-export namespace ESLintSeverity {
-	export function from(value: string | undefined | null): ESLintSeverity {
+export namespace Ec0lintSeverity {
+	export function from(value: string | undefined | null): Ec0lintSeverity {
 		if (value === undefined || value === null) {
-			return ESLintSeverity.off;
+			return Ec0lintSeverity.off;
 		}
 		switch (value.toLowerCase()) {
-			case ESLintSeverity.off:
-				return ESLintSeverity.off;
-			case ESLintSeverity.warn:
-				return ESLintSeverity.warn;
-			case ESLintSeverity.error:
-				return ESLintSeverity.error;
+			case Ec0lintSeverity.off:
+				return Ec0lintSeverity.off;
+			case Ec0lintSeverity.warn:
+				return Ec0lintSeverity.warn;
+			case Ec0lintSeverity.error:
+				return Ec0lintSeverity.error;
 			default:
-				return ESLintSeverity.off;
+				return Ec0lintSeverity.off;
 		}
 	}
 }
 
 export enum RuleSeverity {
-	// Original ESLint values
+	// Original Ec0lint values
 	info = 'info',
 	warn = 'warn',
 	error = 'error',
@@ -149,12 +149,12 @@ export namespace DirectoryItem {
 
 export type PackageManagers = 'npm' | 'yarn' | 'pnpm';
 
-export type ESLintOptions = object & { fixTypes?: string[] };
+export type Ec0lintOptions = object & { fixTypes?: string[] };
 
 export type ConfigurationSettings = {
 	validate: Validate;
 	packageManager: PackageManagers;
-	useESLintClass: boolean;
+	useEc0lintClass: boolean;
 	experimental: {
 		useFlatConfig: boolean;
 	}
@@ -162,8 +162,8 @@ export type ConfigurationSettings = {
 	codeActionOnSave: CodeActionsOnSaveSettings;
 	format: boolean;
 	quiet: boolean;
-	onIgnoredFiles: ESLintSeverity;
-	options: ESLintOptions | undefined;
+	onIgnoredFiles: Ec0lintSeverity;
+	options: Ec0lintOptions | undefined;
 	rulesCustomizations: RuleCustomization[];
 	run: RunValues;
 	problems: {

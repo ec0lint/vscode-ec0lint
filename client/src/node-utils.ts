@@ -49,18 +49,18 @@ export function toPosixPath(path: string): string {
 }
 
 /**
- * Find a ESLint installation at a given root path.
+ * Find a Ec0lint installation at a given root path.
  * @param rootPath the root path.
- * @returns the eslint installation or the unresolved command eslint.
+ * @returns the ec0lint installation or the unresolved command ec0lint.
  */
-export async function findEslint(rootPath: string): Promise<string> {
+export async function findEc0lint(rootPath: string): Promise<string> {
 	const platform = process.platform;
-	if (platform === 'win32' && await existFile(path.join(rootPath, 'node_modules', '.bin', 'eslint.cmd'))) {
-		return path.join('.', 'node_modules', '.bin', 'eslint.cmd');
-	} else if ((platform === 'linux' || platform === 'darwin') && await existFile(path.join(rootPath, 'node_modules', '.bin', 'eslint'))) {
-		return path.join('.', 'node_modules', '.bin', 'eslint');
+	if (platform === 'win32' && await existFile(path.join(rootPath, 'node_modules', '.bin', 'ec0lint.cmd'))) {
+		return path.join('.', 'node_modules', '.bin', 'ec0lint.cmd');
+	} else if ((platform === 'linux' || platform === 'darwin') && await existFile(path.join(rootPath, 'node_modules', '.bin', 'ec0lint'))) {
+		return path.join('.', 'node_modules', '.bin', 'ec0lint');
 	} else {
-		return 'eslint';
+		return 'ec0lint';
 	}
 }
 
