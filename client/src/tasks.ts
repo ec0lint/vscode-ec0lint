@@ -6,12 +6,12 @@
 import * as vscode from 'vscode';
 import { Disposable } from 'vscode-languageclient';
 
-import { findEslint } from './node-utils';
+import { findEc0lint } from './node-utils';
 
 /**
- * A special task definition for ESLint tasks
+ * A special task definition for Ec0lint tasks
  */
-interface EslintTaskDefinition extends vscode.TaskDefinition {
+interface Ec0lintTaskDefinition extends vscode.TaskDefinition {
 }
 
 
@@ -24,7 +24,7 @@ class FolderTaskProvider {
 	}
 
 	public isEnabled(): boolean {
-		const config = vscode.workspace.getConfiguration('eslint', this._workspaceFolder.uri);
+		const config = vscode.workspace.getConfiguration('ec0lint', this._workspaceFolder.uri);
 		return config.get<boolean>('lintTask.enable', false) ?? config.get<boolean>('provideLintTask', false);
 	}
 
@@ -40,19 +40,19 @@ class FolderTaskProvider {
 			return undefined;
 		}
 		try {
-			const command = await findEslint(rootPath);
+			const command = await findEc0lint(rootPath);
 
-			const kind: EslintTaskDefinition = {
-				type: 'eslint'
+			const kind: Ec0lintTaskDefinition = {
+				type: 'ec0lint'
 			};
 
 			const options: vscode.ShellExecutionOptions = { cwd: this.workspaceFolder.uri.fsPath };
-			const config = vscode.workspace.getConfiguration('eslint', this._workspaceFolder.uri);
+			const config = vscode.workspace.getConfiguration('ec0lint', this._workspaceFolder.uri);
 			const lintTaskOptions= config.get<string>('lintTask.options', '.');
 			return new vscode.Task(
 				kind, this.workspaceFolder,
-				'lint whole folder', 'eslint', new vscode.ShellExecution(`${command} ${lintTaskOptions}`, options),
-				'$eslint-stylish'
+				'lint whole folder', 'ec0lint', new vscode.ShellExecution(`${command} ${lintTaskOptions}`, options),
+				'$ec0lint-stylish'
 			);
 		} catch (error) {
 			return undefined;
@@ -61,7 +61,7 @@ class FolderTaskProvider {
 }
 
 /**
- * A task provider that adds ESLint checking tasks.
+ * A task provider that adds Ec0lint checking tasks.
  */
 export class TaskProvider {
 
@@ -157,7 +157,7 @@ export class TaskProvider {
 
 	private updateProvider(): void {
 		if (!this.taskProvider && this.providers.size > 0) {
-			this.taskProvider = vscode.tasks.registerTaskProvider('eslint', {
+			this.taskProvider = vscode.tasks.registerTaskProvider('ec0lint', {
 				provideTasks: () => {
 					return this.getTasks();
 				},

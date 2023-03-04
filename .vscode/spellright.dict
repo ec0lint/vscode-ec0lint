@@ -6,3 +6,6 @@ eslintrc
 json
 pnpm
 cwd
+ec0lint
+ec0lintrc
+ec0lintignore

@@ -1,0 +1,31 @@
+{
+    "root": true,
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "node": true
+    },
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+    "rules": {
+        "avoid-lodash": "error",
+        "lazy-load": "error",
+        "lighter-http": "error",
+        "lighter-image-files": "warn",
+        "lighter-video-files": "warn",
+        "no-ajax": "warn",
+        "no-ajax-events": "warn",
+        "no-animate": "warn",
+        "no-attr": "warn",
+        "no-autoplay": "warn",
+        "no-bind": "warn",
+        "no-date-fns": "error",
+        "no-moment-js": "error",
+        "no-web-fonts": "error"
+    }
+}

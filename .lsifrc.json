@@ -1,4 +1,4 @@
 {
 	"project": "./tsconfig.json",
-	"out": "vscode-eslint.lsif"
+	"out": "vscode-ec0lint.lsif"
 }
