@@ -730,11 +730,11 @@ export namespace Ec0lint {
 
 	const languageId2ParserRegExp: Map<string, RegExp[]> = function createLanguageId2ParserRegExp() {
 		const result = new Map<string, RegExp[]>();
-		const typescript = /\/@typescript-ec0lint\/parser\//;
+		// const typescript = /\/@typescript-ec0lint\/parser\//;
 		const babelEc0lint = /\/babel-ec0lint\/lib\/index.js$/;
 		const vueEc0lint = /\/vue-ec0lint-parser\/index.js$/;
-		result.set('typescript', [typescript, babelEc0lint, vueEc0lint]);
-		result.set('typescriptreact', [typescript, babelEc0lint, vueEc0lint]);
+		result.set('typescript', [/*typescript,*/ babelEc0lint, vueEc0lint]);
+		result.set('typescriptreact', [/*typescript,*/ babelEc0lint, vueEc0lint]);
 
 		const angular = /\/@angular-ec0lint\/template-parser\//;
 		result.set('html', [angular]);
@@ -869,7 +869,7 @@ export namespace Ec0lint {
 			// During Flat Config is considered experimental,
 			// we need to import FlatEc0lint from 'ec0lint/use-at-your-own-risk'.
 			// See: https://ec0lint.com/blog/2022/08/new-config-system-part-3/
-			const ec0lintPath = settings.experimental.useFlatConfig ? 'ec0lint/use-at-your-own-risk' : 'ec0lint';
+			const ec0lintPath = 'ec0lint';
 			if (nodePath !== undefined) {
 				promise = Files.resolve(ec0lintPath, nodePath, nodePath, trace).then<string, string>(undefined, () => {
 					return Files.resolve(ec0lintPath, settings.resolvedGlobalPackageManagerPath, moduleResolveWorkingDirectory, trace);
@@ -882,28 +882,6 @@ export namespace Ec0lint {
 			return promise.then(async (libraryPath) => {
 				let library = path2Library.get(libraryPath);
 				if (library === undefined) {
-					if (settings.experimental.useFlatConfig) {
-						const lib = loadNodeModule<{ FlatEc0lint?: Ec0lintClassConstructor }>(libraryPath);
-						if (lib === undefined) {
-							settings.validate = Validate.off;
-							if (!settings.silent) {
-								connection.console.error(`Failed to load ec0lint library from ${libraryPath}. If you are using Ec0lint v2.1 or earlier, try upgrading it. For newer versions, try disabling the 'ec0lint.experimental.useFlatConfig' setting. See the output panel for more information.`);
-							}
-						} else if (lib.FlatEc0lint === undefined) {
-							settings.validate = Validate.off;
-							connection.console.error(`The ec0lint library loaded from ${libraryPath} doesn\'t export a FlatEc0lint class.`);
-						} else {
-							connection.console.info(`Ec0lint library loaded from: ${libraryPath}`);
-							// pretend to be a regular ec0lint endpoint
-							library = {
-								Ec0lint: lib.FlatEc0lint,
-								isFlatConfig: true,
-								CLIEngine: undefined,
-							};
-							settings.library = library;
-							path2Library.set(libraryPath, library);
-						}
-					} else {
 						library = loadNodeModule(libraryPath);
 						if (library === undefined) {
 							settings.validate = Validate.off;
@@ -919,7 +897,6 @@ export namespace Ec0lint {
 							settings.library = library;
 							path2Library.set(libraryPath, library);
 						}
-					}
 				} else {
 					settings.library = library;
 				}
@@ -1031,8 +1008,8 @@ export namespace Ec0lint {
 		return resultPromise;
 	}
 
-	export function newClass(library: Ec0lintModule, newOptions: Ec0lintClassOptions | CLIOptions, useEc0lintClass: boolean): Ec0lintClass {
-		if (Ec0lintModule.hasEc0lintClass(library) && useEc0lintClass) {
+	export function newClass(library: Ec0lintModule, newOptions: Ec0lintClassOptions | CLIOptions): Ec0lintClass {
+		if (Ec0lintModule.hasEc0lintClass(library)) {
 			return new library.Ec0lint(newOptions);
 		}
 		if (Ec0lintModule.hasCLIEngine(library)) {
@@ -1058,7 +1035,7 @@ export namespace Ec0lint {
 				}
 			}
 
-			const ec0lintClass = newClass(settings.library, newOptions, settings.useEc0lintClass);
+			const ec0lintClass = newClass(settings.library, newOptions);
 			// We need to await the result to ensure proper execution of the
 			// finally block.
 			return await func(ec0lintClass);

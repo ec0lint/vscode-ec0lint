@@ -154,10 +154,6 @@ export type Ec0lintOptions = object & { fixTypes?: string[] };
 export type ConfigurationSettings = {
 	validate: Validate;
 	packageManager: PackageManagers;
-	useEc0lintClass: boolean;
-	experimental: {
-		useFlatConfig: boolean;
-	}
 	codeAction: CodeActionSettings;
 	codeActionOnSave: CodeActionsOnSaveSettings;
 	format: boolean;

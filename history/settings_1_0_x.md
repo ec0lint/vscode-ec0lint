@@ -24,7 +24,6 @@ The extension contributes the following variables to the [settings](https://code
   }
   ```
 - `ec0lint.run` - run the linter `onSave` or `onType`, default is `onType`.
-- `ec0lint.autoFixOnSave` - enables auto fix on save. Please note auto fix on save is only available if VS Code's `files.autoSave` is either `off`, `onFocusChange` or `onWindowChange`. It will not work with `afterDelay`.
 - `ec0lint.quiet` - ignore warnings.
 - `ec0lint.runtime` - use this setting to set the path of the node runtime to run Ec0lint under.
 - `ec0lint.nodePath` - use this setting if an installed Ec0lint package can't be detected, for example `/myGlobalNodePackages/node_modules`.

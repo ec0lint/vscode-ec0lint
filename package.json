@@ -36,7 +36,7 @@
 	"capabilities": {
 		"virtualWorkspaces": {
 			"supported": false,
-			"description": "Using ESLint is not possible in virtual workspaces."
+			"description": "Using Ec0lint is not possible in virtual workspaces."
 		},
 		"untrustedWorkspaces": {
 			"supported": false,
@@ -93,7 +93,7 @@
 					"scope": "resource",
 					"type": "object",
 					"default": {},
-					"markdownDescription": "The ec0lint options object to provide args normally passed to ec0lint when executed from a command line (see https://eslint.org/docs/developer-guide/nodejs-api#eslint-class)."
+					"markdownDescription": "The ec0lint options object to provide args normally passed to ec0lint when executed from a command line (see https://ec0lint.com/docs/developer-guide/nodejs-api#eslint-class)."
 				},
 				"ec0lint.trace.server": {
 					"scope": "window",
@@ -143,13 +143,6 @@
 					"default": "onType",
 					"description": "Run the linter on save (onSave) or on type (onType)"
 				},
-				"ec0lint.autoFixOnSave": {
-					"scope": "resource",
-					"type": "boolean",
-					"default": false,
-					"description": "Turns auto fix on save on or off.",
-					"deprecationMessage": "The setting is deprecated. Use editor.codeActionsOnSave instead with a source.fixAll.ec0lint member."
-				},
 				"ec0lint.quiet": {
 					"scope": "resource",
 					"type": "boolean",
@@ -165,28 +158,6 @@
 					],
 					"default": "off",
 					"description": "Whether Ec0lint should issue a warning on ignored files."
-				},
-				"ec0lint.migration.2_x": {
-					"scope": "application",
-					"type": "string",
-					"enum": [
-						"off",
-						"on"
-					],
-					"default": "on",
-					"description": "Whether Ec0lint should migrate auto fix on save settings."
-				},
-				"ec0lint.useEc0lintClass": {
-					"scope": "resource",
-					"type": "boolean",
-					"default": false,
-					"description": "Since version 7 ESLint offers a new API call ESLint. Use it even if the old CLIEngine is available. From version 8 on forward on ESLint class is available."
-				},
-				"ec0lint.experimental.useFlatConfig": {
-					"scope": "resource",
-					"type": "boolean",
-					"default": false,
-					"description": "Enables support of experimental Flat Config (aka eslint.config.js, supported by ESLint version 8.21 or later)."
 				},
 				"ec0lint.workingDirectories": {
 					"scope": "resource",
@@ -238,7 +209,7 @@
 									},
 									"!cwd": {
 										"type": "boolean",
-										"description": "Set to true if ESLint shouldn't change the working directory."
+										"description": "Set to true if Ec0lint shouldn't change the working directory."
 									}
 								},
 								"required": [
@@ -254,7 +225,7 @@
 									},
 									"!cwd": {
 										"type": "boolean",
-										"description": "Set to true if ESLint shouldn't change the working directory."
+										"description": "Set to true if Ec0lint shouldn't change the working directory."
 									}
 								},
 								"required": [
@@ -263,7 +234,7 @@
 							}
 						]
 					},
-					"markdownDescription": "Specifies how the working directories ESLint is using are computed. ESLint resolves configuration files (e.g. `eslintrc`, `.eslintignore`) relative to a working directory so it is important to configure this correctly."
+					"markdownDescription": "Specifies how the working directories Ec0lint is using are computed. Ec0lint resolves configuration files (e.g. `ec0lintrc`, `.ec0lintignore`) relative to a working directory so it is important to configure this correctly."
 				},
 				"ec0lint.validate": {
 					"scope": "resource",
@@ -278,7 +249,7 @@
 								"properties": {
 									"language": {
 										"type": "string",
-										"description": "The language id to be validated by ESLint."
+										"description": "The language id to be validated by Ec0lint."
 									},
 									"autoFix": {
 										"type": "boolean",
@@ -289,13 +260,13 @@
 							}
 						]
 					},
-					"description": "An array of language ids which should be validated by ESLint. If not installed ESLint will show an error."
+					"description": "An array of language ids which should be validated by Ec0lint. If not installed Ec0lint will show an error."
 				},
 				"ec0lint.ignoreUntitled": {
 					"scope": "resource",
 					"type": "boolean",
 					"default": false,
-					"description": "If true, untitled files won't be validated by ESLint."
+					"description": "If true, untitled files won't be validated by Ec0lint."
 				},
 				"ec0lint.probe": {
 					"scope": "resource",
@@ -306,20 +277,11 @@
 					"default": [
 						"javascript",
 						"javascriptreact",
-						"typescript",
-						"typescriptreact",
 						"html",
 						"vue",
 						"markdown"
 					],
 					"description": "An array of language ids for which the extension should probe if support is installed."
-				},
-				"ec0lint.provideLintTask": {
-					"scope": "resource",
-					"type": "boolean",
-					"default": false,
-					"deprecationMessage": "This option is deprecated. Use eslint.lintTask.enable instead.",
-					"description": "Controls whether a task for linting the whole workspace will be available."
 				},
 				"ec0lint.lintTask.enable": {
 					"scope": "resource",
@@ -331,7 +293,7 @@
 					"scope": "resource",
 					"type": "string",
 					"default": ".",
-					"markdownDescription": "Command line options applied when running the task for linting the whole workspace (see https://eslint.org/docs/user-guide/command-line-interface)."
+					"markdownDescription": "Command line options applied when running the task for linting the whole workspace (see https://ec0lint.com/docs/user-guide/command-line-interface)."
 				},
 				"ec0lint.runtime": {
 					"scope": "machine-overridable",
@@ -340,7 +302,7 @@
 						"null"
 					],
 					"default": null,
-					"markdownDescription": "The location of the node binary to run ESLint under."
+					"markdownDescription": "The location of the node binary to run Ec0lint under."
 				},
 				"ec0lint.execArgv": {
 					"scope": "machine-overridable",
@@ -361,7 +323,7 @@
 					"scope": "window",
 					"type": "boolean",
 					"default": false,
-					"markdownDescription": "Enables ESLint debug mode (same as `--debug` on the command line)"
+					"markdownDescription": "Enables Ec0lint debug mode (same as `--debug` on the command line)"
 				},
 				"ec0lint.codeAction.disableRuleComment": {
 					"scope": "resource",
@@ -442,13 +404,7 @@
 						}
 					],
 					"default": null,
-					"markdownDescription": "The rules that should be executed when computing the code actions on save or formatting a file. Defaults to the rules configured via the ESLint configuration"
-				},
-				"ec0lint.format.enable": {
-					"scope": "resource",
-					"type": "boolean",
-					"default": false,
-					"description": "Enables ESLint as a formatter."
+					"markdownDescription": "The rules that should be executed when computing the code actions on save or formatting a file. Defaults to the rules configured via the Ec0lint configuration"
 				},
 				"ec0lint.rules.customizations": {
 					"items": {
@@ -473,7 +429,7 @@
 					},
 					"scope": "resource",
 					"type": "array",
-					"description": "Override the severity of one or more rules reported by this extension, regardless of the project's ESLint config. Use globs to apply default severities for multiple rules."
+					"description": "Override the severity of one or more rules reported by this extension, regardless of the project's Ec0lint config. Use globs to apply default severities for multiple rules."
 				},
 				"ec0lint.notebooks.rules.customizations": {
 						"items": {
@@ -499,61 +455,10 @@
 						"scope": "resource",
 						"type": "array",
 						"description": "A special rules customization section for text cells in notebook documents."
-				},
-				"ec0lint.timeBudget.onValidation": {
-					"scope": "resource",
-					"type": "object",
-					"properties": {
-						"warn": {
-							"type": "number",
-							"default": 4000,
-							"minimum": 0,
-							"markdownDescription": "The time budget in milliseconds to spend on validation before showing a warning."
-						},
-						"error": {
-							"type": "number",
-							"default": 8000,
-							"minimum": 0,
-							"markdownDescription": "The time budget in milliseconds to spend on validation before showing an error."
-						}
-					},
-					"default": {
-						"warn": 4000,
-						"error": 8000
-					},
-					"markdownDescription": "The time budget in milliseconds to spend on validation before showing a warning or error."
-				},
-				"ec0lint.timeBudget.onFixes": {
-					"scope": "resource",
-					"type": "object",
-					"properties": {
-						"warn": {
-							"type": "number",
-							"default": 3000,
-							"minimum": 0,
-							"markdownDescription": "The time budget in milliseconds to spend on computing fixes before showing a warning."
-						},
-						"error": {
-							"type": "number",
-							"default": 6000,
-							"minimum": 0,
-							"markdownDescription": "The time budget in milliseconds to spend on computing fixes before showing an error."
-						}
-					},
-					"default": {
-						"warn": 3000,
-						"error": 6000
-					},
-					"markdownDescription": "The time budget in milliseconds to spend on computing fixes before showing a warning or error."
 				}
 			}
 		},
 		"commands": [
-			{
-				"title": "Fix all auto-fixable Problems",
-				"category": "Ec0lint",
-				"command": "ec0lint.executeAutofix"
-			},
 			{
 				"title": "Create Ec0lint configuration",
 				"category": "Ec0lint",

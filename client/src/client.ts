@@ -8,20 +8,20 @@ import * as path from 'path';
 
 import {
 	workspace as Workspace, window as Window, languages as Languages, Uri, TextDocument, CodeActionContext, Diagnostic,
-	Command, CodeAction, MessageItem, ConfigurationTarget, env as Env, CodeActionKind, WorkspaceConfiguration, NotebookCell, commands,
+	Command, CodeAction, MessageItem, CodeActionKind, WorkspaceConfiguration, NotebookCell, commands,
 	ExtensionContext, LanguageStatusItem, LanguageStatusSeverity, DocumentFilter as VDocumentFilter
 } from 'vscode';
 
 import {
 	LanguageClient, LanguageClientOptions, TransportKind, ErrorHandler, CloseAction, RevealOutputChannelOn, ServerOptions, DocumentFilter,
-	DidCloseTextDocumentNotification, DidOpenTextDocumentNotification, State, VersionedTextDocumentIdentifier, ExecuteCommandParams,
-	ExecuteCommandRequest, ConfigurationParams, NotebookDocumentSyncRegistrationType
+	DidCloseTextDocumentNotification, DidOpenTextDocumentNotification, State,
+	ConfigurationParams, NotebookDocumentSyncRegistrationType
 } from 'vscode-languageclient/node';
 
 import { LegacyDirectoryItem, Migration, PatternItem, ValidateItem } from './settings';
 import { ExitCalled, NoConfigRequest, NoEc0lintLibraryRequest, OpenEc0lintDocRequest, ProbeFailedRequest, ShowOutputChannel, Status, StatusNotification, StatusParams } from './shared/customMessages';
 import { CodeActionSettings, CodeActionsOnSaveMode, CodeActionsOnSaveRules, ConfigurationSettings, DirectoryItem, Ec0lintOptions, Ec0lintSeverity, ModeItem, PackageManagers, RuleCustomization, RunValues, Validate } from './shared/settings';
-import { convert2RegExp, Is, Semaphore, toOSPath, toPosixPath } from './node-utils';
+import { convert2RegExp, Is, toOSPath, toPosixPath } from './node-utils';
 import { pickFolder } from './vscode-utils';
 
 export class Validator {
@@ -116,11 +116,6 @@ export namespace Ec0lintClient {
 		}
 	}
 
-	interface TimeBudget {
-		warn: number;
-		error: number;
-	}
-
 	type PerformanceStatus = {
 		firstReport: boolean;
 		validationTime: number
@@ -151,12 +146,8 @@ export namespace Ec0lintClient {
 		// the client
 		let serverCalledProcessExit: boolean = false;
 
-		// A semaphore to ensure we are only running one migration at a time
-		const migrationSemaphore: Semaphore<void> = new Semaphore<void>(1);
 		// The actual migration code if any.
 		let migration: Migration | undefined;
-		// Whether migration should happen now
-		let notNow: boolean = false;
 
 		// The client's status bar item.
 		const languageStatus: LanguageStatusItem = Languages.createLanguageStatusItem('ec0lint.languageStatusItem', []);
@@ -357,24 +348,6 @@ export namespace Ec0lintClient {
 				updateLanguageStatusSelector();
 				updateStatusBar(undefined);
 			}),
-			commands.registerCommand('ec0lint.executeAutofix', async () => {
-				const textEditor = Window.activeTextEditor;
-				if (!textEditor) {
-					return;
-				}
-				const textDocument: VersionedTextDocumentIdentifier = {
-					uri: textEditor.document.uri.toString(),
-					version: textEditor.document.version
-				};
-				const params: ExecuteCommandParams = {
-					command: 'ec0lint.applyAllFixes',
-					arguments: [textDocument]
-				};
-				await client.start();
-				client.sendRequest(ExecuteCommandRequest.type, params).then(undefined, () => {
-					void Window.showErrorMessage('Failed to apply Ec0lint fixes to the document. Please consider opening an issue with steps to reproduce.');
-				});
-			})
 		);
 
 		return [client, acknowledgePerformanceStatus];
@@ -598,60 +571,9 @@ export namespace Ec0lintClient {
 				const workspaceFolder = resource.scheme === 'untitled'
 					? Workspace.workspaceFolders !== undefined ? Workspace.workspaceFolders[0] : undefined
 					: Workspace.getWorkspaceFolder(resource);
-				await migrationSemaphore.lock(async () => {
-					const globalMigration = Workspace.getConfiguration('ec0lint').get('migration.2_x', 'on');
-					if (notNow === false && globalMigration === 'on') {
-						try {
-							migration = new Migration(resource);
-							migration.record();
-							interface Item extends MessageItem {
-								id: 'yes' | 'no' | 'readme' | 'global' | 'local';
-							}
-							if (migration.needsUpdate()) {
-								const folder = workspaceFolder?.name;
-								const file = path.basename(resource.fsPath);
-								const selected = await Window.showInformationMessage<Item>(
-									[
-										`The Ec0lint 'autoFixOnSave' setting needs to be migrated to the new 'editor.codeActionsOnSave' setting`,
-										folder !== undefined ? `for the workspace folder: ${folder}.` : `for the file: ${file}.`,
-										`For compatibility reasons the 'autoFixOnSave' remains and needs to be removed manually.`,
-										`Do you want to migrate the setting?`
-									].join(' '),
-									{ modal: true},
-									{ id: 'yes', title: 'Yes'},
-									{ id: 'global', title: 'Never migrate Settings' },
-									{ id: 'readme', title: 'Open Readme' },
-									{ id: 'no', title: 'Not now', isCloseAffordance: true }
-								);
-								if (selected !== undefined) {
-									if (selected.id === 'yes') {
-										try {
-											await migration.update();
-										} catch (error) {
-											migrationFailed(client, error);
-										}
-									} else if (selected.id === 'no') {
-										notNow = true;
-									} else if (selected.id === 'global') {
-										await config.update('migration.2_x', 'off', ConfigurationTarget.Global);
-									} else if (selected.id === 'readme') {
-										notNow = true;
-										void Env.openExternal(Uri.parse('https://github.com/ec0lint/vscode-ec0lint#settings-migration'));
-									}
-								}
-							}
-						} finally {
-							migration = undefined;
-						}
-					}
-				});
 				const settings: ConfigurationSettings = {
 					validate: Validate.off,
 					packageManager: config.get<PackageManagers>('packageManager', 'npm'),
-					useEc0lintClass: config.get<boolean>('useEc0lintClass', false),
-					experimental: {
-						useFlatConfig: config.get<boolean>('experimental.useFlatConfig', false)
-					},
 					codeActionOnSave: {
 						mode: CodeActionsOnSaveMode.all
 					},
@@ -681,7 +603,6 @@ export namespace Ec0lintClient {
 					settings.validate = validator.check(document);
 				}
 				if (settings.validate !== Validate.off) {
-					settings.format = !!config.get<boolean>('format.enable', false);
 					settings.codeActionOnSave.mode = CodeActionsOnSaveMode.from(config.get<CodeActionsOnSaveMode>('codeActionsOnSave.mode', CodeActionsOnSaveMode.all));
 					settings.codeActionOnSave.rules = CodeActionsOnSaveRules.from(config.get<string[] | null>('codeActionsOnSave.rules', null));
 				}
@@ -855,46 +776,29 @@ export namespace Ec0lintClient {
 				return;
 			}
 			const performanceInfo = performanceStatus.get(activeTextDocument.languageId);
-			const statusInfo = documentStatus.get(activeTextDocument.uri.toString()) ?? { state: Status.ok};
-
-			let validationBudget = Workspace.getConfiguration('ec0lint', activeTextDocument).get<TimeBudget>('timeBudget.onValidation', { warn: 4000, error: 8000 });
-			if (validationBudget.warn < 0 || validationBudget.error < 0) {
-				validationBudget = {
-					warn: validationBudget.warn < 0 ? Number.MAX_VALUE : validationBudget.warn,
-					error: validationBudget.error < 0 ? Number.MAX_VALUE : validationBudget.error
-				};
-			}
-			let fixesBudget = Workspace.getConfiguration('ec0lint', activeTextDocument).get<TimeBudget>('timeBudget.onFixes', { warn: 3000, error: 6000 });
-			if (fixesBudget.warn < 0 || fixesBudget.error < 0) {
-				fixesBudget = {
-					warn: fixesBudget.warn < 0 ? Number.MAX_VALUE : fixesBudget.warn,
-					error: fixesBudget.error < 0 ? Number.MAX_VALUE : fixesBudget.error
-				};
-			}
+			const statusInfo = documentStatus.get(activeTextDocument.uri.toString()) ?? { state: Status.ok };
 
 			let severity: LanguageStatusSeverity = LanguageStatusSeverity.Information;
-			const [timeTaken, detail, message, timeBudget] = function(): [number, string | undefined, string, TimeBudget] {
+			const [timeTaken, detail, message] = function(): [number, string | undefined, string] {
 				if (performanceInfo === undefined || performanceInfo.firstReport || performanceInfo.acknowledged) {
-					return [-1, undefined, '', { warn: 0, error: 0 }];
+					return [-1, undefined, ''];
 				}
 				if ((performanceInfo.fixTime) > (performanceInfo.validationTime)) {
 					const timeTaken = Math.max(performanceInfo.fixTime, performanceInfo.reported);
 					return [
 						timeTaken,
-						timeTaken > fixesBudget.warn ? `Computing fixes took ${timeTaken}ms` :  undefined,
-						`Computing fixes during save for file ${activeTextDocument.uri.toString()} during save took ${timeTaken}ms. Please check the Ec0lint rules for performance issues.`,
-						fixesBudget
+						`Computing fixes took ${timeTaken}ms`,
+						`Computing fixes during save for file ${activeTextDocument.uri.toString()} during save took ${timeTaken}ms. Please check the Ec0lint rules for performance issues.`
 					];
 				} else if ((performanceInfo.validationTime) > 0) {
 					const timeTaken = Math.max(performanceInfo.validationTime, performanceInfo.reported);
 					return [
 						timeTaken,
-						timeTaken > validationBudget.warn ? `Validation took ${timeTaken}ms` :  undefined,
+						`Validation took ${timeTaken}ms`,
 						`Linting file ${activeTextDocument.uri.toString()} took ${timeTaken}ms. Please check the Ec0lint rules for performance issues.`,
-						validationBudget
 					];
 				}
-				return [-1, undefined, '', { warn: 0, error: 0 }];
+				return [-1, undefined, ''];
 			}();
 
 			switch (statusInfo.state) {
@@ -907,19 +811,15 @@ export namespace Ec0lintClient {
 					severity = LanguageStatusSeverity.Error;
 					break;
 			}
-			if (severity === LanguageStatusSeverity.Information && timeTaken > timeBudget.warn) {
+			if (severity === LanguageStatusSeverity.Information) {
 				severity = LanguageStatusSeverity.Warning;
 			}
-			if (severity === LanguageStatusSeverity.Warning && timeTaken > timeBudget.error) {
+			if (severity === LanguageStatusSeverity.Warning) {
 				severity = LanguageStatusSeverity.Error;
 			}
-			if (timeTaken > timeBudget.warn && performanceInfo !== undefined) {
+			if (performanceInfo !== undefined) {
 				if (timeTaken > performanceInfo.reported) {
-					if (timeTaken > timeBudget.error) {
-						client.error(message);
-					} else {
 						client.warn(message);
-					}
 				}
 			}
 

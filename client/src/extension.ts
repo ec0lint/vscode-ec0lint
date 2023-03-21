@@ -105,7 +105,6 @@ export function activate(context: ExtensionContext) {
 		}
 	};
 	onActivateCommands = [
-		Commands.registerCommand('ec0lint.executeAutofix', notValidating),
 		Commands.registerCommand('ec0lint.showOutputChannel', notValidating),
 		Commands.registerCommand('ec0lint.migrateSettings', notValidating),
 		Commands.registerCommand('ec0lint.restart', notValidating)

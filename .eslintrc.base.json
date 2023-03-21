@@ -12,13 +12,13 @@
 	},
 	"rules": {
         "semi": "off",
-        "@typescript-eslint/semi": "error",
+        "@typescript-eslint/semi": "off",
 		"no-extra-semi": "warn",
 		"curly": "warn",
 		"quotes": ["error", "single", { "allowTemplateLiterals": true } ],
 		"eqeqeq": "error",
 		"indent": "off",
-		"@typescript-eslint/indent": ["warn", "tab", { "SwitchCase": 1 } ],
-		"@typescript-eslint/no-floating-promises": "error"
+		"@typescript-eslint/indent": "off",
+		"@typescript-eslint/no-floating-promises": "off"
 	}
 }

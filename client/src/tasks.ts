@@ -25,7 +25,7 @@ class FolderTaskProvider {
 
 	public isEnabled(): boolean {
 		const config = vscode.workspace.getConfiguration('ec0lint', this._workspaceFolder.uri);
-		return config.get<boolean>('lintTask.enable', false) ?? config.get<boolean>('provideLintTask', false);
+		return config.get<boolean>('lintTask.enable', false);
 	}
 
 	public start(): void {

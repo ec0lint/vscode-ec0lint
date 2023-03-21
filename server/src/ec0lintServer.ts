@@ -505,7 +505,7 @@ messageQueue.registerNotification(DidChangeWatchedFilesNotification.type, async 
 		if (dirname) {
 			const library = Ec0lint.ErrorHandlers.getConfigErrorReported(fsPath);
 			if (library !== undefined) {
-				const ec0lintClass = Ec0lint.newClass(library, {}, false);
+				const ec0lintClass = Ec0lint.newClass(library, {});
 				try {
 					await ec0lintClass.lintText('', { filePath: path.join(dirname, '___test___.js') });
 					Ec0lint.ErrorHandlers.removeConfigErrorReported(fsPath);

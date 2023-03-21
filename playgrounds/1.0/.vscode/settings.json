@@ -48,7 +48,6 @@
 		{ "rule": "no-use-before-define", "severity": "off" }
 	],
 	"editor.codeActionsOnSaveTimeout": 2000,
-	"eslint.format.enable": true,
 	"eslint.onIgnoredFiles": "off",
 	"editor.codeActionsOnSave": {
 		"source.fixAll": true,

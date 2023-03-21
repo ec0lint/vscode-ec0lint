@@ -154,7 +154,6 @@ export class Migration {
 	private codeActionOnSave: MigrationData<CodeActionsOnSave>;
 	private languageSpecificSettings: Map<string, MigrationData<CodeActionsOnSave>>;
 
-	private autoFixOnSave: MigrationData<boolean>;
 	private validate: MigrationData<(ValidateItem | string)[]>;
 
 	private workingDirectories: MigrationData<(string | DirectoryItem)[]>;
@@ -166,107 +165,17 @@ export class Migration {
 		this.ec0lintConfig = Workspace.getConfiguration('ec0lint', resource);
 		this.editorConfig = Workspace.getConfiguration('editor', resource);
 		this.codeActionOnSave = MigrationData.create(this.editorConfig.inspect<CodeActionsOnSave>('codeActionsOnSave'));
-		this.autoFixOnSave = MigrationData.create(this.ec0lintConfig.inspect<boolean>('autoFixOnSave'));
 		this.validate = MigrationData.create(this.ec0lintConfig.inspect<(ValidateItem | string)[]>('validate'));
 		this.workingDirectories = MigrationData.create(this.ec0lintConfig.inspect<(string | DirectoryItem)[]>('workingDirectories'));
 		this.languageSpecificSettings = new Map();
 	}
 
 	public record(): void {
-		const fixAll = this.recordAutoFixOnSave();
-		this.recordValidate(fixAll);
 		this.recordWorkingDirectories();
 	}
 
 	public captureDidChangeSetting(func: () => void): void {
 		this.didChangeConfiguration = func;
-	}
-
-	private recordAutoFixOnSave(): [boolean, boolean, boolean] {
-		function record(this: void, elem: MigrationElement<boolean>, setting: MigrationElement<CodeActionsOnSave>): boolean {
-			// if it is explicitly set to false don't convert anything anymore
-			if (CodeActionsOnSave.isExplicitlyDisabled(setting.value)) {
-				return false;
-			}
-			if (!Is.objectLiteral(setting.value) && !Array.isArray(setting.value)) {
-				setting.value = Object.create(null) as {};
-			}
-			const autoFix: boolean = !!elem.value;
-			const sourceFixAll: boolean = !!CodeActionsOnSave.getSourceFixAll(setting.value);
-			let result: boolean;
-			if (autoFix !== sourceFixAll && autoFix && CodeActionsOnSave.getSourceFixAllEc0lint(setting.value) === undefined) {
-				CodeActionsOnSave.setSourceFixAllEc0lint(setting.value, elem.value);
-				setting.changed = true;
-				result = !!CodeActionsOnSave.getSourceFixAllEc0lint(setting.value);
-			} else {
-				result = !!CodeActionsOnSave.getSourceFixAll(setting.value);
-			}
-			/* For now we don't rewrite the settings to allow users to go back to an older version
-			elem.value = undefined;
-			elem.changed = true;
-			*/
-			return result;
-		}
-
-		return [
-			record(this.autoFixOnSave.global, this.codeActionOnSave.global),
-			record(this.autoFixOnSave.workspace, this.codeActionOnSave.workspace),
-			record(this.autoFixOnSave.workspaceFolder, this.codeActionOnSave.workspaceFolder)
-		];
-	}
-
-	private recordValidate(fixAll: [boolean, boolean, boolean]): void {
-		function record(this: void, elem: MigrationElement<(ValidateItem | string)[]>, settingAccessor: (language: string) => MigrationElement<CodeActionsOnSave>, fixAll: boolean): void {
-			if (elem.value === undefined) {
-				return;
-			}
-			for (let i = 0; i < elem.value.length; i++) {
-				const item = elem.value[i];
-				if (typeof item === 'string') {
-					continue;
-				}
-				if (fixAll && item.autoFix === false && typeof item.language === 'string') {
-					const setting = settingAccessor(item.language);
-					if (!Is.objectLiteral(setting.value) && !Array.isArray(setting.value)) {
-						setting.value = Object.create(null) as {};
-					}
-					if (CodeActionsOnSave.getSourceFixAllEc0lint(setting.value!) !== false) {
-						CodeActionsOnSave.setSourceFixAllEc0lint(setting.value!, false);
-						setting.changed = true;
-					}
-				}
-				/* For now we don't rewrite the settings to allow users to go back to an older version
-				if (item.language !== undefined) {
-					elem.value[i] = item.language;
-					elem.changed = true;
-				}
-				*/
-			}
-		}
-
-		const languageSpecificSettings = this.languageSpecificSettings;
-		const workspaceConfig = this.workspaceConfig;
-		function getCodeActionsOnSave(language: string): MigrationData<CodeActionsOnSave> {
-			let result: MigrationData<CodeActionsOnSave> | undefined = languageSpecificSettings.get(language);
-			if (result !== undefined) {
-				return result;
-			}
-			const value: InspectData<LanguageSettings> | undefined = workspaceConfig.inspect(`[${language}]`);
-			if (value === undefined) {
-				return MigrationData.create(undefined);
-			}
-
-			const globalValue = value.globalValue?.['editor.codeActionsOnSave'];
-			const workspaceFolderValue = value.workspaceFolderValue?.['editor.codeActionsOnSave'];
-			const workspaceValue = value.workspaceValue?.['editor.codeActionsOnSave'];
-			result = MigrationData.create<CodeActionsOnSave>({ globalValue, workspaceFolderValue, workspaceValue });
-			languageSpecificSettings.set(language, result);
-			return result;
-		}
-
-		record(this.validate.global, (language) => getCodeActionsOnSave(language).global, fixAll[0]);
-		record(this.validate.workspace, (language) => getCodeActionsOnSave(language).workspace, fixAll[1] ? fixAll[1] : fixAll[0]);
-		record(this.validate.workspaceFolder, (language) => getCodeActionsOnSave(language).workspaceFolder, fixAll[2] ? fixAll[2] : (fixAll[1] ? fixAll[1] : fixAll[0]));
 	}
 
 	private recordWorkingDirectories(): void {
@@ -291,8 +200,7 @@ export class Migration {
 	}
 
 	public needsUpdate(): boolean {
-		if (MigrationData.needsUpdate(this.autoFixOnSave) ||
-			MigrationData.needsUpdate(this.validate) ||
+		if (MigrationData.needsUpdate(this.validate) ||
 			MigrationData.needsUpdate(this.codeActionOnSave) ||
 			MigrationData.needsUpdate(this.workingDirectories)
 		) {
@@ -333,10 +241,6 @@ export class Migration {
 			await _update(this.editorConfig, 'codeActionsOnSave', this.codeActionOnSave.global, ConfigurationTarget.Global);
 			await _update(this.editorConfig, 'codeActionsOnSave', this.codeActionOnSave.workspace, ConfigurationTarget.Workspace);
 			await _update(this.editorConfig, 'codeActionsOnSave', this.codeActionOnSave.workspaceFolder, ConfigurationTarget.WorkspaceFolder);
-
-			await _update(this.ec0lintConfig, 'autoFixOnSave', this.autoFixOnSave.global, ConfigurationTarget.Global);
-			await _update(this.ec0lintConfig, 'autoFixOnSave', this.autoFixOnSave.workspace, ConfigurationTarget.Workspace);
-			await _update(this.ec0lintConfig, 'autoFixOnSave', this.autoFixOnSave.workspaceFolder, ConfigurationTarget.WorkspaceFolder);
 
 			await _update(this.ec0lintConfig, 'validate', this.validate.global, ConfigurationTarget.Global);
 			await _update(this.ec0lintConfig, 'validate', this.validate.workspace, ConfigurationTarget.Workspace);
