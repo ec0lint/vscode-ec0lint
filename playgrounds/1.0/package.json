@@ -1,0 +1,12 @@
+{
+  "name": "ec0lint_70",
+  "private": true,
+  "version": "1.0.0",
+  "devDependencies": {
+    "axios": "1.3.4",
+    "date-fns": "2.29.3"
+  },
+  "dependencies": {
+    "ec0lint": "^2.1.1"
+  }
+}

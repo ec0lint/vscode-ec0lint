@@ -17,6 +17,6 @@ build/**
 client/**
 !client/out/extension.js
 server/**
-!server/out/eslintServer.js
+!server/out/ec0lintServer.js
 playgrounds/**
 history/**

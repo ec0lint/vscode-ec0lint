@@ -32,7 +32,6 @@
 	"eslint.trace.server": "off",
 	"eslint.debug": false,
 	"eslint.lintTask.enable": false,
-	"eslint.format.enable": true,
 	"cSpell.words": [
 		"Affordance",
 		"Autofix",
