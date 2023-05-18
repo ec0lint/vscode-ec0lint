@@ -1,19 +1,19 @@
 {
 	"name": "vscode-ec0lint",
-	"displayName": "Ec0lint",
-	"description": "Integrates Ec0lint JavaScript into VS Code.",
-	"version": "2.4.0",
+	"displayName": "ec0lint",
+	"description": "Integrates ec0lint JavaScript into VS Code.",
+	"version": "1.0.1",
 	"author": "ec0hub",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-eslint.git"
+		"url": "https://github.com/ec0lint/vscode-ecolint.git"
 	},
 	"bugs": {
-		"url": "https://github.com/Microsoft/vscode-eslint/issues"
+		"url": "https://github.com/ec0lint/vscode-ecolint.git/issues"
 	},
-	"publisher": "dbaeumer",
-	"icon": "eslint_icon.png",
+	"publisher": "ec0lint",
+	"icon": "ec0lint_icon.png",
 	"categories": [
 		"Programming Languages",
 		"Linters"
@@ -30,13 +30,11 @@
 	"extensionKind": [
 		"workspace"
 	],
-	"enabledApiProposals": [
-	],
 	"main": "./client/out/extension",
 	"capabilities": {
 		"virtualWorkspaces": {
 			"supported": false,
-			"description": "Using Ec0lint is not possible in virtual workspaces."
+			"description": "Using ec0lint is not possible in virtual workspaces."
 		},
 		"untrustedWorkspaces": {
 			"supported": false,
@@ -46,7 +44,7 @@
 	"contributes": {
 		"configuration": {
 			"type": "object",
-			"title": "Ec0lint",
+			"title": "ec0lint",
 			"properties": {
 				"ec0lint.enable": {
 					"scope": "resource",
@@ -157,7 +155,7 @@
 						"off"
 					],
 					"default": "off",
-					"description": "Whether Ec0lint should issue a warning on ignored files."
+					"description": "Whether ec0lint should issue a warning on ignored files."
 				},
 				"ec0lint.workingDirectories": {
 					"scope": "resource",
@@ -209,7 +207,7 @@
 									},
 									"!cwd": {
 										"type": "boolean",
-										"description": "Set to true if Ec0lint shouldn't change the working directory."
+										"description": "Set to true if ec0lint shouldn't change the working directory."
 									}
 								},
 								"required": [
@@ -225,7 +223,7 @@
 									},
 									"!cwd": {
 										"type": "boolean",
-										"description": "Set to true if Ec0lint shouldn't change the working directory."
+										"description": "Set to true if ec0lint shouldn't change the working directory."
 									}
 								},
 								"required": [
@@ -234,7 +232,7 @@
 							}
 						]
 					},
-					"markdownDescription": "Specifies how the working directories Ec0lint is using are computed. Ec0lint resolves configuration files (e.g. `ec0lintrc`, `.ec0lintignore`) relative to a working directory so it is important to configure this correctly."
+					"markdownDescription": "Specifies how the working directories ec0lint is using are computed. ec0lint resolves configuration files (e.g. `ec0lintrc`, `.ec0lintignore`) relative to a working directory so it is important to configure this correctly."
 				},
 				"ec0lint.validate": {
 					"scope": "resource",
@@ -249,7 +247,7 @@
 								"properties": {
 									"language": {
 										"type": "string",
-										"description": "The language id to be validated by Ec0lint."
+										"description": "The language id to be validated by ec0lint."
 									},
 									"autoFix": {
 										"type": "boolean",
@@ -260,13 +258,13 @@
 							}
 						]
 					},
-					"description": "An array of language ids which should be validated by Ec0lint. If not installed Ec0lint will show an error."
+					"description": "An array of language ids which should be validated by ec0lint. If not installed ec0lint will show an error."
 				},
 				"ec0lint.ignoreUntitled": {
 					"scope": "resource",
 					"type": "boolean",
 					"default": false,
-					"description": "If true, untitled files won't be validated by Ec0lint."
+					"description": "If true, untitled files won't be validated by ec0lint."
 				},
 				"ec0lint.probe": {
 					"scope": "resource",
@@ -302,7 +300,7 @@
 						"null"
 					],
 					"default": null,
-					"markdownDescription": "The location of the node binary to run Ec0lint under."
+					"markdownDescription": "The location of the node binary to run ec0lint under."
 				},
 				"ec0lint.execArgv": {
 					"scope": "machine-overridable",
@@ -323,7 +321,7 @@
 					"scope": "window",
 					"type": "boolean",
 					"default": false,
-					"markdownDescription": "Enables Ec0lint debug mode (same as `--debug` on the command line)"
+					"markdownDescription": "Enables ec0lint debug mode (same as `--debug` on the command line)"
 				},
 				"ec0lint.codeAction.disableRuleComment": {
 					"scope": "resource",
@@ -404,7 +402,7 @@
 						}
 					],
 					"default": null,
-					"markdownDescription": "The rules that should be executed when computing the code actions on save or formatting a file. Defaults to the rules configured via the Ec0lint configuration"
+					"markdownDescription": "The rules that should be executed when computing the code actions on save or formatting a file. Defaults to the rules configured via the ec0lint configuration"
 				},
 				"ec0lint.rules.customizations": {
 					"items": {
@@ -429,7 +427,7 @@
 					},
 					"scope": "resource",
 					"type": "array",
-					"description": "Override the severity of one or more rules reported by this extension, regardless of the project's Ec0lint config. Use globs to apply default severities for multiple rules."
+					"description": "Override the severity of one or more rules reported by this extension, regardless of the project's ec0lint config. Use globs to apply default severities for multiple rules."
 				},
 				"ec0lint.notebooks.rules.customizations": {
 						"items": {
@@ -460,23 +458,23 @@
 		},
 		"commands": [
 			{
-				"title": "Create Ec0lint configuration",
-				"category": "Ec0lint",
+				"title": "Create ec0lint configuration",
+				"category": "ec0lint",
 				"command": "ec0lint.createConfig"
 			},
 			{
 				"title": "Show Output Channel",
-				"category": "Ec0lint",
+				"category": "ec0lint",
 				"command": "ec0lint.showOutputChannel"
 			},
 			{
 				"title": "Migrate Settings",
-				"category": "Ec0lint",
+				"category": "ec0lint",
 				"command": "ec0lint.migrateSettings"
 			},
 			{
-				"title": "Restart Ec0lint Server",
-				"category": "Ec0lint",
+				"title": "Restart ec0lint Server",
+				"category": "ec0lint",
 				"command": "ec0lint.restart"
 			}
 
